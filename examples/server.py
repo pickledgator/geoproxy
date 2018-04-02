@@ -25,8 +25,12 @@ def main():
     here_api_app_code = os.environ.get('HERE_API_APP_CODE')
 
     # Create server object and tell it to listen on the desired port
-    geo_proxy = Geoproxy(args.address, args.port, google_maps_api_key,
-                         here_api_app_id, here_api_app_code)
+    try:
+        geo_proxy = Geoproxy(args.address, args.port, google_maps_api_key,
+                             here_api_app_id, here_api_app_code)
+    except Exception as e:
+        print("Failed to start server: {}".format(e))
+        return
 
     try:
         # start the ioloop
