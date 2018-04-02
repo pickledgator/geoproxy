@@ -40,9 +40,9 @@ class TestGoogleServices(unittest.TestCase):
         bb = BoundingBox()
         bb.set_bl_tr(coord1, coord2)
         gmsh.build_query("two+words", bb)
-        self.assertEqual(
-            gmsh.query, "https://maps.googleapis.com/maps/api/geocode/json?address=two+words&key=key\
-                &bounds=1.0,0.0|0.0,1.0")
+        string = "https://maps.googleapis.com/maps/api/geocode/json?address=two+words" \
+            "&key=key&bounds=1.0,0.0|0.0,1.0"
+        self.assertEqual(gmsh.query, string)
 
     def test_google_maps_response_parser_valid(self):
         gmsrp = GoogleMapsServiceResponseParser()
@@ -76,18 +76,18 @@ class TestHereServices(unittest.TestCase):
         self.assertIsNone(hsh.query)
         self.assertEqual(type(hsh.parser), HereServiceResponseParser)
         hsh.build_query("query", None)
-        self.assertEqual(
-            hsh.query, "https://geocoder.cit.api.here.com/6.2/geocode.json?app_id=appid\
-                &app_code=appcode&searchtext=query")
+        string = "https://geocoder.cit.api.here.com/6.2/geocode.json?app_id=appid" \
+            "&app_code=appcode&searchtext=query"
+        self.assertEqual(hsh.query, string)
         bb = BoundingBox()
         coord1 = Coordinate("0.0", "0.0")
         coord2 = Coordinate("1.0", "1.0")
         bb = BoundingBox()
         bb.set_tl_br(coord1, coord2)
         hsh.build_query("two+words", bb)
-        self.assertEqual(
-            hsh.query, "https://geocoder.cit.api.here.com/6.2/geocode.json?app_id=appid\
-                &app_code=appcode&searchtext=two+words&bounds=0.0,0.0;1.0,1.0")
+        string = "https://geocoder.cit.api.here.com/6.2/geocode.json?app_id=appid" \
+            "&app_code=appcode&searchtext=two+words&bounds=0.0,0.0;1.0,1.0"
+        self.assertEqual(hsh.query, string)
 
     def test_here_response_parser_valid(self):
         hsrp = HereServiceResponseParser()
