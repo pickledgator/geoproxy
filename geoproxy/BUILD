@@ -17,3 +17,36 @@ py_library(
     ],
     srcs_version = 'PY3',
 )
+
+py_test(
+    name='test_geometry',
+    srcs=[
+        'test/test_geometry.py',
+    ],
+    deps=[
+        ':geoproxy_py',
+    ],
+    size = 'small',
+)
+
+py_test(
+    name='test_third_party_services',
+    srcs=[
+        'test/test_third_party_services.py',
+    ],
+    deps=[
+        ':geoproxy_py',
+    ],
+    size = 'small',
+)
+
+py_test(
+    name='test_api',
+    srcs=[
+        'test/test_api.py',
+    ],
+    deps=[
+        ':geoproxy_py',
+    ],
+    size = 'small',
+)

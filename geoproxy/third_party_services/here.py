@@ -9,11 +9,11 @@ class HereServiceHelper(ThirdPartyServiceHelper):
         self.here_api_app_id = here_api_app_id
         self.here_api_app_code = here_api_app_code
 
-    def set_query(self, geo_proxy_request):
-        self.query = "https://geocoder.cit.api.here.com/6.2/geocode.json?app_id={}&app_code={}&searchtext={}".format(self.here_api_app_id, self.here_api_app_code, geo_proxy_request.address)
-        if geo_proxy_request.bounds:
+    def build_query(self, address, bounds=None):
+        self.query = "https://geocoder.cit.api.here.com/6.2/geocode.json?app_id={}&app_code={}&searchtext={}".format(self.here_api_app_id, self.here_api_app_code, address)
+        if bounds:
             # northwest, southeast
-            self.query += "&bounds={},{};{},{}".format(geo_proxy_request.bounds.top_left.latitude, geo_proxy_request.bounds.top_left.longitude, geo_proxy_request.bounds.bottom_right.latitude, geo_proxy_request.bounds.bottom_right.longitude)
+            self.query += "&bounds={},{};{},{}".format(bounds.top_left.latitude, bounds.top_left.longitude, bounds.bottom_right.latitude, bounds.bottom_right.longitude)
 
 
 class HereServiceResponseParser(ThirdPartyServiceResponseParser):

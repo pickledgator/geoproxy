@@ -35,7 +35,7 @@ class GeoproxyRequestParser:
             return None
 
     def find_missing_elements(self, full_list, partial_list):
-        return set(full_list) - set(partial_list)
+        return list(set(full_list) - set(partial_list))
 
     def parse(self, request):
         # required field

@@ -28,12 +28,13 @@ class GeoproxyRequestHandler(tornado.web.RequestHandler):
         geo_proxy_request = GeoproxyRequestParser(self.available_services, geo_proxy_response)
         # if our request parse succeeds, we have valid input data and can proceed
         if geo_proxy_request.parse(self):
+            print(type(self))
             self.logger.info("Incoming request:\n{}".format(geo_proxy_request))
             for service in geo_proxy_request.services:
                 self.logger.info("Querying third-party service: {}".format(service))
                 # Grab the helper object, associated with the service we'd like to request
                 service_helper = self.available_services[service]
-                service_helper.set_query(geo_proxy_request)
+                service_helper.build_query(geo_proxy_request.address, geo_proxy_request.bounds)
                 response_json = yield self.query_third_party_geocoder(service_helper.query)
                 if response_json:
                     parse_success = service_helper.parser.parse(response_json)

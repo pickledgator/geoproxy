@@ -1,10 +1,13 @@
 #!/usr/bin/env python
 
 class Coordinate:
-    def __init__(self, lat, lon, elev=0):
-        self.latitude = lat
-        self.longitude = lon
-        self.elevation = elev
+    def __init__(self, lat, lon, elev=0.0):
+        self.latitude = float(lat)
+        self.longitude = float(lon)
+        self.elevation = float(elev)
+
+    def __eq__(self, b):
+        return self.latitude == b.latitude and self.longitude == b.longitude and self.elevation == b.elevation
 
     def __str__(self):
         return "Lat: {}, Long: {}, Elev: {}".format(self.latitude, self.longitude, self.elevation)
