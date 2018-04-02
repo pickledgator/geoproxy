@@ -67,11 +67,13 @@ bazel build examples/...
 
 In one terminal, run the example server with virtualenv already activated. The server application supports the following command line arguments: `-a`: The ip address of the server (default: localhost), `-p`: The port the server should bind to (default: 8080).
 ```shell
+source env/bin/activate
 bazel-bin/examples/server -a localhost -p 8080
 ```
 
 In another terminal, run the client with virtualenv already activated. The client application supports the following command line arguemnts: `-a`: The ip address of the server (default: localhost), `-p`: The port the server is bound to (default: 8080), `-q`: The address string to geocode (in quotes), `-s`: (optional) The primary service to use (default: google), `-b`: (optional) The bounds string (in quotes) to pass to the geocoder in the format that the third party geocoder expects (see API Reference).
 ```shell
+source env/bin/activate
 bazel-bin/examples/client -q "350 5th Ave, New York"
 bazel-bin/examples/client -a localhost -p 8080 -q "Winnetka" -s "here" -b "34.172684,-118.604794|34.236144,-118.500938"
 ```
