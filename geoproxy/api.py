@@ -8,8 +8,32 @@ from geoproxy.geometry import Coordinate
 
 
 class GeoproxyRequestParser:
+    """Assisting methods for parsing a RESTful request to the API
+
+    Provides a series of methods for parsing an incoming geoproxy request from tornado.
+    The parse method checks for input data validity of both the required address field
+    and the optional service and bounds fields. After a successful parse, the class's
+    member variables are populated.
+
+    Attributes:
+        logger (logging.logger): Logger instance
+        address (string): Address string from the request, populated by parse()
+        services ([string]): Services list in order of priority, populated by parse()
+        available_services (dict): Full list of available services, used to populate
+            extra backup services if primary fails
+        bounds (BoundingBox): Optional bounding box coordinates to use in the query
+        geo_proxy_response (GeoproxyResponse): Reference to the geoproxy API response
+
+    """
 
     def __init__(self, available_services, geo_proxy_response):
+        """Constructor for the request parser
+
+        Args:
+            available_services (dict): Maps from service name to ThirdPartyServiceHelper
+            geo_proxy_response (GeoproxyResponse): Reference to the geoproxy API response
+
+        """
         self.logger = logging.getLogger(self.__class__.__name__)
         self.address = None
         self.services = []
