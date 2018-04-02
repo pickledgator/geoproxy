@@ -50,3 +50,14 @@ py_test(
     ],
     size = 'small',
 )
+
+py_test(
+    name='test_geoproxy',
+    srcs=[
+        'test/test_geoproxy.py',
+    ],
+    deps=[
+        ':geoproxy_py',
+    ],
+    size = 'small',
+)

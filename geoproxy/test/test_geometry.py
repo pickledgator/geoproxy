@@ -4,6 +4,7 @@ from geoproxy.geometry import Coordinate
 from geoproxy.geometry import BoundingBox
 import unittest
 
+
 class TestGeometry(unittest.TestCase):
     def test_coordinate(self):
         coord = Coordinate(1.0, 2.0)
@@ -29,7 +30,8 @@ class TestGeometry(unittest.TestCase):
         self.assertEqual(bb.bottom_right, coord2)
         self.assertEqual(bb.top_right, Coordinate(coord1.latitude, coord2.longitude))
         self.assertEqual(bb.bottom_left, Coordinate(coord2.latitude, coord1.longitude))
-        bb.set_bl_tr(Coordinate(coord2.latitude, coord1.longitude), Coordinate(coord1.latitude, coord2.longitude))
+        bb.set_bl_tr(Coordinate(coord2.latitude, coord1.longitude),
+                     Coordinate(coord1.latitude, coord2.longitude))
         self.assertEqual(bb.top_left, coord1)
         self.assertEqual(bb.bottom_right, coord2)
 

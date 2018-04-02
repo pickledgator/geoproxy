@@ -6,14 +6,20 @@ import socket
 import urllib.request
 import urllib.error
 
+
 def main():
     # Parse arguments from the command line
     parser = argparse.ArgumentParser()
-    parser.add_argument("-a", "--address", default="localhost", help="IP address of the server (default: localhost)")
+    parser.add_argument("-a", "--address", default="localhost",
+                        help="IP address of the server (default: localhost)")
     parser.add_argument("-p", "--port", default=8080, help="Port of the server (default: 8080)")
     parser.add_argument("-q", "--query", required=True, help="Query string to geocode, quoted")
-    parser.add_argument("-s", "--service", help="Primary third party service to use (falls back on other available services automatically (options: google/here) (default: google)")
-    parser.add_argument("-b", "--bounds", help="Bounds for viewport (external service corner ordering: \"lat,long|lat,long\")")
+    parser.add_argument("-s", "--service",
+                        help="Primary third party service to use (falls back on other available\
+                              services automatically (options: google/here) (default: google)")
+    parser.add_argument("-b", "--bounds",
+                        help="Bounds for viewport (external service corner ordering: \
+                              \"lat,long|lat,long\")")
     args = parser.parse_args()
 
     query = "http://{}:{}/geocode?address={}".format(args.address, args.port, args.query)
@@ -24,7 +30,7 @@ def main():
     if args.service:
         query += "&service={}".format(args.service)
     # clean up the query string and remove spaces to properly format request
-    query = query.replace(" ","+")
+    query = query.replace(" ", "+")
 
     print("Sending query: {}".format(query))
 
@@ -40,6 +46,7 @@ def main():
     if response:
         response_json = json.loads(response)
         print(json.dumps(response_json, indent=4, sort_keys=True))
+
 
 if __name__ == "__main__":
     main()

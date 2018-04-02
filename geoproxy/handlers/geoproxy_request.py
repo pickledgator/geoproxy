@@ -12,7 +12,8 @@ import urllib.error
 from geoproxy.api import GeoproxyResponse
 from geoproxy.api import GeoproxyRequestParser
 
-class GeoproxyRequestHandler(tornado.web.RequestHandler):   
+
+class GeoproxyRequestHandler(tornado.web.RequestHandler):
     def initialize(self, logger, executor, available_services):
         self.logger = logger
         self.executor = executor
@@ -28,7 +29,6 @@ class GeoproxyRequestHandler(tornado.web.RequestHandler):
         geo_proxy_request = GeoproxyRequestParser(self.available_services, geo_proxy_response)
         # if our request parse succeeds, we have valid input data and can proceed
         if geo_proxy_request.parse(self):
-            print(type(self))
             self.logger.info("Incoming request:\n{}".format(geo_proxy_request))
             for service in geo_proxy_request.services:
                 self.logger.info("Querying third-party service: {}".format(service))
@@ -40,15 +40,23 @@ class GeoproxyRequestHandler(tornado.web.RequestHandler):
                     parse_success = service_helper.parser.parse(response_json)
                     if parse_success == 0:
                         geo_proxy_response.set_error("Zero results", "ZERO_RESULTS")
-                    elif not parse_success == None:
-                        geo_proxy_response.set_result(service, service_helper.parser.latitude, service_helper.parser.longitude, service_helper.parser.address)
+                    elif parse_success is not None:
+                        geo_proxy_response.set_result(
+                            service, service_helper.parser.latitude,
+                            service_helper.parser.longitude,
+                            service_helper.parser.address)
                         break
-                   
+
+        # if we had an error with both service requests, but no error has been set, do it now
+        # this handles cases like wrong API keys, offline services, etc.
+        if not geo_proxy_response.status == "OK" and geo_proxy_response.error is None:
+            geo_proxy_response.set_error("Error in third-party API requests", "UNKNOWN_ERROR")
+
         self.write(geo_proxy_response.to_json())
         self.logger.info("Response completed in {:0.2f} seconds".format(time.time() - start_time))
 
     @run_on_executor
-    def query_third_party_geocoder(self, query, timeout=1):      
+    def query_third_party_geocoder(self, query, timeout=1):
         response = None
         try:
             response = urllib.request.urlopen(query, timeout=timeout).read().decode('utf-8')

@@ -1,20 +1,25 @@
 #!/usr/bin/env python
 
+import json
 from geoproxy.api import GeoproxyRequestParser
 from geoproxy.api import GeoproxyResponse
 import unittest
 
+
 class MockRequestHandler:
+
     def __init__(self, dictionary):
         self.dictionary = dictionary
+
     def get_arguments(self, key):
         try:
             return self.dictionary[key]
-        except:
+        except Exception as e:
             return []
 
 
 class TestAPI(unittest.TestCase):
+
     def test_request_parser_constructor(self):
         response = GeoproxyResponse()
         mock_services = {"google": None, "here": None}
@@ -38,16 +43,16 @@ class TestAPI(unittest.TestCase):
         # right
         out = req_parser.parse_bounding_coordinates("1.0,2.0|3.0,4.0")
         self.assertIsNotNone(out)
-        self.assertEqual(len(out),4)
+        self.assertEqual(len(out), 4)
         self.assertEqual(out[1], 2.0)
 
     def test_missing_elements(self):
         req_parser = GeoproxyRequestParser(None, None)
-        out = req_parser.find_missing_elements([1,2,3], [2])
-        self.assertEqual(out, [1,3])
-        out = req_parser.find_missing_elements([1,2,3], [1,2,3])
+        out = req_parser.find_missing_elements([1, 2, 3], [2])
+        self.assertEqual(out, [1, 3])
+        out = req_parser.find_missing_elements([1, 2, 3], [1, 2, 3])
         self.assertEqual(out, [])
-        out = req_parser.find_missing_elements([1,2,3], [1,2,3,4])
+        out = req_parser.find_missing_elements([1, 2, 3], [1, 2, 3, 4])
         self.assertEqual(out, [])
 
     def test_google_parse(self):
@@ -108,28 +113,25 @@ class TestAPI(unittest.TestCase):
         self.assertFalse(out)
         self.assertEqual(response.status, "INVALID_REQUEST")
 
-
-
-    # def test_coordinate_str(self):
-    #     coord = Coordinate("1.0", "2.0", "0.0")
-    #     self.assertEqual(coord.latitude, 1.0)
-    #     self.assertEqual(coord.longitude, 2.0)
-    #     self.assertEqual(coord.elevation, 0.0)
-
-    # def test_bounding_box(self):
-    #     coord1 = Coordinate("0.0", "0.0")
-    #     coord2 = Coordinate("1.0", "1.0")
-    #     bb = BoundingBox()
-    #     self.assertIsNone(bb.top_left)
-    #     self.assertIsNone(bb.top_right)
-    #     bb.set_tl_br(coord1, coord2)
-    #     self.assertEqual(bb.top_left, coord1)
-    #     self.assertEqual(bb.bottom_right, coord2)
-    #     self.assertEqual(bb.top_right, Coordinate(coord1.latitude, coord2.longitude))
-    #     self.assertEqual(bb.bottom_left, Coordinate(coord2.latitude, coord1.longitude))
-    #     bb.set_bl_tr(Coordinate(coord2.latitude, coord1.longitude), Coordinate(coord1.latitude, coord2.longitude))
-    #     self.assertEqual(bb.top_left, coord1)
-    #     self.assertEqual(bb.bottom_right, coord2)
+    def test_response(self):
+        gp = GeoproxyResponse()
+        self.assertIsNone(gp.query)
+        self.assertIsNone(gp.error)
+        self.assertIsNone(gp.result)
+        gp.set_error("message", "TYPE")
+        self.assertEqual(gp.error, "message")
+        self.assertEqual(gp.status, "TYPE")
+        self.assertIsNone(gp.result)
+        self.assertEqual(len(json.loads(gp.to_json()).keys()), 2)
+        gp2 = GeoproxyResponse()
+        gp2.set_result("google", 1.0, 2.0, "Addr string")
+        self.assertEqual(gp2.resolved_address, "Addr string")
+        self.assertEqual(type(gp2.result), dict)
+        self.assertEqual(gp2.result['source'], "google")
+        self.assertEqual(gp2.status, "OK")
+        self.assertIsNone(gp2.error)
+        self.assertEqual(len(json.loads(gp2.to_json()).keys()), 4)
+        self.assertEqual(type(gp2.to_json()), str)
 
 
 if __name__ == '__main__':

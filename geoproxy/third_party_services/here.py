@@ -3,6 +3,7 @@
 from geoproxy.third_party_services.service_base import ThirdPartyServiceHelper
 from geoproxy.third_party_services.service_base import ThirdPartyServiceResponseParser
 
+
 class HereServiceHelper(ThirdPartyServiceHelper):
     def __init__(self, here_api_app_id, here_api_app_code):
         super(HereServiceHelper, self).__init__(HereServiceResponseParser())
@@ -10,10 +11,16 @@ class HereServiceHelper(ThirdPartyServiceHelper):
         self.here_api_app_code = here_api_app_code
 
     def build_query(self, address, bounds=None):
-        self.query = "https://geocoder.cit.api.here.com/6.2/geocode.json?app_id={}&app_code={}&searchtext={}".format(self.here_api_app_id, self.here_api_app_code, address)
+        self.query = "https://geocoder.cit.api.here.com/6.2/geocode.json?app_id={}\
+                      &app_code={}&searchtext={}".format(self.here_api_app_id,
+                                                         self.here_api_app_code,
+                                                         address)
         if bounds:
             # northwest, southeast
-            self.query += "&bounds={},{};{},{}".format(bounds.top_left.latitude, bounds.top_left.longitude, bounds.bottom_right.latitude, bounds.bottom_right.longitude)
+            self.query += "&bounds={},{};{},{}".format(bounds.top_left.latitude,
+                                                       bounds.top_left.longitude,
+                                                       bounds.bottom_right.latitude,
+                                                       bounds.bottom_right.longitude)
 
 
 class HereServiceResponseParser(ThirdPartyServiceResponseParser):

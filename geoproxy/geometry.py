@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+
 class Coordinate:
     def __init__(self, lat, lon, elev=0.0):
         self.latitude = float(lat)
@@ -7,10 +8,13 @@ class Coordinate:
         self.elevation = float(elev)
 
     def __eq__(self, b):
-        return self.latitude == b.latitude and self.longitude == b.longitude and self.elevation == b.elevation
+        return self.latitude == b.latitude \
+            and self.longitude == b.longitude \
+            and self.elevation == b.elevation
 
     def __str__(self):
         return "Lat: {}, Long: {}, Elev: {}".format(self.latitude, self.longitude, self.elevation)
+
 
 class BoundingBox:
     def __init__(self):
@@ -34,4 +38,5 @@ class BoundingBox:
         self.bottom_left = Coordinate(br.latitude, tl.longitude)
 
     def __str__(self):
-        return "Bounding Box:\n TL: {}\n TR: {}\n BL: {}\n BR: {}".format(self.top_left, self.top_right, self.bottom_left, self.bottom_right)
+        return "Bounding Box:\n TL: {}\n TR: {}\n BL: {}\n BR: {}".format(
+            self.top_left, self.top_right, self.bottom_left, self.bottom_right)

@@ -3,16 +3,21 @@
 from geoproxy.third_party_services.service_base import ThirdPartyServiceHelper
 from geoproxy.third_party_services.service_base import ThirdPartyServiceResponseParser
 
+
 class GoogleMapsServiceHelper(ThirdPartyServiceHelper):
     def __init__(self, google_maps_api_key):
         super(GoogleMapsServiceHelper, self).__init__(GoogleMapsServiceResponseParser())
         self.google_maps_api_key = google_maps_api_key
 
     def build_query(self, address, bounds=None):
-        self.query = "https://maps.googleapis.com/maps/api/geocode/json?address={}&key={}".format(address, self.google_maps_api_key)
+        self.query = "https://maps.googleapis.com/maps/api/geocode/json?address={}&key={}".format(
+            address, self.google_maps_api_key)
         if bounds:
             # southwest, northeast
-            self.query += "&bounds={},{}|{},{}".format(bounds.bottom_left.latitude, bounds.bottom_left.longitude, bounds.top_right.latitude, bounds.top_right.longitude)
+            self.query += "&bounds={},{}|{},{}".format(bounds.bottom_left.latitude,
+                                                       bounds.bottom_left.longitude,
+                                                       bounds.top_right.latitude,
+                                                       bounds.top_right.longitude)
 
 
 class GoogleMapsServiceResponseParser(ThirdPartyServiceResponseParser):

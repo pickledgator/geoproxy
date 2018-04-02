@@ -19,10 +19,12 @@ class Geoproxy(tornado.web.Application):
         handlers = [
             # (r"/", IndexHandler, dict()),
             (r"/geocode", GeoproxyRequestHandler, dict(logger=self.logger,
-                                                       executor=self.executor, available_services=available_services))
+                                                       executor=self.executor,
+                                                       available_services=available_services))
         ]
         super(Geoproxy, self).__init__(handlers)
         self.logger.info("Geoproxy listening on {}:{}".format(address, port))
+        self.listen(port, address=address)
 
     def __del__(self):
         self.logger.info("The server is exiting!")

@@ -6,7 +6,9 @@ import logging
 from geoproxy.geometry import BoundingBox
 from geoproxy.geometry import Coordinate
 
+
 class GeoproxyRequestParser:
+
     def __init__(self, available_services, geo_proxy_response):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.address = None
@@ -16,7 +18,8 @@ class GeoproxyRequestParser:
         self.geo_proxy_response = geo_proxy_response
 
     def __str__(self):
-        return "Address: {}\nServices: {}\nBounds: {}".format(self.address, self.services, self.bounds)
+        return "Address: {}\nServices: {}\nBounds: {}".format(
+            self.address, self.services, self.bounds)
 
     def parse_bounding_coordinates(self, bounds_string):
         corners = bounds_string.split("|")
@@ -52,16 +55,19 @@ class GeoproxyRequestParser:
             self.address = address[0].replace(" ", "+")
         else:
             self.logger.error("A single address parameter is required within the request")
-            self.geo_proxy_response.set_error("A single address parameter is required within the request", "INVALID_REQUEST")
+            self.geo_proxy_response.set_error(
+                "A single address parameter is required within the request", "INVALID_REQUEST")
             return False
 
         # optional fields
         service = request.get_arguments("service")
         if len(service) == 1 and service[0] in self.available_services:
                 # add the desired primary service to our ordered list
-                self.services.append(service[0])
-                # backfill additional services from the available services as fallback options after the primary
-                [self.services.append(s) for s in self.find_missing_elements(self.available_services.keys(), self.services)]
+            self.services.append(service[0])
+            # backfill additional services from the available services as fallback
+            # options after the primary
+            [self.services.append(s) for s in self.find_missing_elements(
+                self.available_services.keys(), self.services)]
         else:
             # if un-specified, just default the ordered services to the available services
             [self.services.append(s) for s in self.available_services.keys()]
@@ -71,17 +77,22 @@ class GeoproxyRequestParser:
             coordinates = self.parse_bounding_coordinates(bounds[0])
             if coordinates:
                 self.bounds = BoundingBox()
-                # TODO(pickledgator): Are the 3rd party geocoders robust to sending the wrong corners?
+                # TODO(pickledgator): Are the 3rd party geocoders robust to sending the
+                # wrong corners?
                 if self.services[0] == "google":
-                    # assume that if the service is not specified or its google, that the bounding box
-                    # coordinates are provided in google's format
-                    self.bounds.set_bl_tr(Coordinate(coordinates[0], coordinates[1]), Coordinate(coordinates[2], coordinates[3]))
+                    # assume that if the service is not specified or its google, that the bounding
+                    # box coordinates are provided in google's format
+                    self.bounds.set_bl_tr(Coordinate(coordinates[0], coordinates[
+                                          1]), Coordinate(coordinates[2], coordinates[3]))
                 elif self.services[0] == "here":
                     # otherwise, if the service is specified as here, assume the bounding box
                     # coordinates are provided in here's format
-                    self.bounds.set_tl_br(Coordinate(coordinates[0], coordinates[1]), Coordinate(coordinates[2], coordinates[3]))
+                    self.bounds.set_tl_br(Coordinate(coordinates[0], coordinates[
+                                          1]), Coordinate(coordinates[2], coordinates[3]))
                 else:
-                    self.logger.warning("Error identifying format of bounding box coordinates from service: {}".format(self.services[0]))
+                    self.logger.warning(
+                        "Error identifying format of bounding box coordinates \
+                        from service: {}".format(self.services[0]))
             else:
                 self.logger.warning("Error parsing bounding box coordinates")
         return True
@@ -97,6 +108,7 @@ class GeoproxyResponse:
     "UNKNOWN_ERROR"
 
     """
+
     def __init__(self):
         self.query = None
         self.resolved_address = None

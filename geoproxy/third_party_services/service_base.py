@@ -2,6 +2,7 @@
 
 import logging
 
+
 class ThirdPartyServiceHelper(object):
     def __init__(self, parser):
         self.query = None
@@ -9,6 +10,7 @@ class ThirdPartyServiceHelper(object):
 
     def __str__(self):
         return "ThirdPartyGeocoderHelper:\nQuery: {}".format(self.query)
+
 
 class ThirdPartyServiceResponseParser(object):
     def __init__(self):
