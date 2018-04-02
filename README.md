@@ -106,7 +106,7 @@ Note: URLs must be properly encoded to be valid and are limited to 8192 characte
 ### Geoproxy Responses
 Responses are returned as JSON serialized strings. For example, consider the following request:
 ```
-http://localhost:8080/geocode?address=350+5th+Ave,+New+York&key=YOUR_API_KEY
+http://localhost:8080/geocode?address=350+5th+Ave,+NY
 ```
 
 The expected response would be:
