@@ -1,5 +1,10 @@
 ## Installation
 
+### Obtain third-party geocoder api keys
+Geoproxy uses two third party geocoding services within the proxy. You should first obtain API keys for each of the services.
+* [Google Maps Geocoder](https://developers.google.com/maps/documentation/geocoding/intro)
+* [Here Geocoder](https://developer.here.com/documentation/geocoder/topics/what-is.html)
+
 ### OSX Setup
 First start with system dependencies for the build system
 ```shell
@@ -38,6 +43,13 @@ bazel test geoproxy/...
 ```
 
 ### Example Usage
+First, you need to set google maps and here API keys as environment variables. These keys are used by the server to connect to third party geocoding services.
+```shell
+export GOOGLE_MAPS_API_KEY=??
+export HERE_API_APP_ID=??
+export HERE_API_APP_CODE=??
+```
+
 In one terminal, run the example server with virtualenv already activated (binds to localhost:8080)
 ```shell
 bazel-bin/examples/server
