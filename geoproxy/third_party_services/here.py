@@ -57,6 +57,10 @@ class HereServiceResponseParser(ThirdPartyServiceResponseParser):
     def parse(self, response):
         """Parse method used to extract data from Here Geocoder API response
 
+        NOTE: If more than one result is provided in the response, we are only parsing the
+        first result in that list. We are making an assumption that the third party geocoder
+        is ordering the results list by the highest likelihood.
+
         Args:
             response (dict): JSON response as dict
 
