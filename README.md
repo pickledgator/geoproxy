@@ -150,3 +150,7 @@ There are several known limitations in the implementation of the geoproxy servic
 * Limited exception handling
 * The result returned is the first item found (ie, first geocoder to return a list of results, where the first item in the list is chosen)
 * Not all third party geocoding service parameters are supported yet (only bounds)
+
+# Testing
+Geoproxy has been tested on:
+* MacOS 10.13.3 using python 3.6.4 and bazel 0.11.1
