@@ -42,29 +42,89 @@ class GeoproxyRequestParser:
         self.geo_proxy_response = geo_proxy_response
 
     def __str__(self):
+        """Human readable representation of the request parser
+        """
         return "Address: {}\nServices: {}\nBounds: {}".format(
             self.address, self.services, self.bounds)
 
     def parse_bounding_coordinates(self, bounds_string):
+        """Extracts coordinates (floats) from a bounds string
+
+        The representation of coordinates 1 and 2 after parsing is agnostic in the
+        context of this helper, it just parses a string into floats.
+
+        Args:
+            bounds_string (string): Input from http request to be parsed
+
+        Returns:
+            [floats]: List of 4 floats representing coord1.lat, coord1.long,
+                      coord2.lat, coord2.long.
+
+        """
         corners = bounds_string.split("|")
         if len(corners) != 2:
+            # TODO(pickledgator): Consider bubbling up exceptions here instead
             return None
         coordinates = []
         for corner in corners:
             corner_coords = corner.split(",")
             if len(corner_coords) != 2:
+                # TODO(pickledgator): Consider bubbling up exceptions here instead
                 return None
             for coord in corner_coords:
                 coordinates.append(float(coord))
         if len(coordinates) == 4:
             return coordinates
         else:
+            # TODO(pickledgator): Consider bubbling up exceptions here instead
             return None
 
     def find_missing_elements(self, full_list, partial_list):
+        """Compares two lists and finds the differences
+
+        Args:
+            full_list [obj]: Complete list
+            partial_list [obj]: Partial list to compare against complete list
+
+        Returns:
+            [obj]: List of objs that are in complete list but not partial list
+
+        """
         return list(set(full_list) - set(partial_list))
 
     def parse(self, request):
+        """Parses a tornado HTTP request and populates the class's members variables
+
+        The parser assumes that there is one required argument in the request (address)
+        and two optional arguments (service, bounds). If the address argument is provided,
+        it checks for validity and attempts to sanitize the string.
+
+        If the service argument is provided, it checks to see if the service is within the
+        available services. If the specified request service is valid, it sets this service
+        as the primary service for the request. All remaining available services are then backfilled
+        into the class's service list as fallback options if the primary service fails. If the
+        service argument is omitted, all available services are used (based on dict ordering).
+        Eg:
+        available_services = ["1", "2"]
+        request.service = "2"
+        self.services = ["2", "1"]
+
+        If the bounds argument is provided, it attempts to parse the string using the class helper
+        function. Upon successful bounds string parsing, the 2 extracted coordinates are then used
+        to create a bounding box object. Since each third party geocoding service uses a different
+        ordering to provide bounding box corners, it is assumed that whatever service is specified
+        in the request will match the appropriate corner ordering.
+        Eg:
+        request.service == "google"/None -> bounds: bottom left, top right
+        request.service == "here" -> bounds: top left, bottom right
+
+        Args:
+            request (tornado.web.RequestHandler): Object containing the request data
+
+        Returns:
+            bool: If the parse is successful or not
+
+        """
         # required field
         address = request.get_arguments("address")
         if len(address) == 1:
@@ -72,6 +132,7 @@ class GeoproxyRequestParser:
             if address[0] == "":
                 self.logger.error("Address is invalid")
                 self.geo_proxy_response.set_error("Address is invalid", "INVALID_REQUEST")
+                # TODO(pickledgator): Consider bubbling up exceptions instead here
                 return False
             # save the raw query into the response package
             self.geo_proxy_response.query = address[0]
@@ -81,9 +142,10 @@ class GeoproxyRequestParser:
             self.logger.error("A single address parameter is required within the request")
             self.geo_proxy_response.set_error(
                 "A single address parameter is required within the request", "INVALID_REQUEST")
+            # TODO(pickledgator): Consider bubbling up exceptions instead here
             return False
 
-        # optional fields
+        # optional field
         service = request.get_arguments("service")
         if len(service) == 1 and service[0] in self.available_services:
                 # add the desired primary service to our ordered list
@@ -96,40 +158,70 @@ class GeoproxyRequestParser:
             # if un-specified, just default the ordered services to the available services
             [self.services.append(s) for s in self.available_services.keys()]
 
+        # optional field
         bounds = request.get_arguments("bounds")
         if len(bounds) == 1:
             coordinates = self.parse_bounding_coordinates(bounds[0])
             if coordinates:
-                self.bounds = BoundingBox()
                 # TODO(pickledgator): Are the 3rd party geocoders robust to sending the
                 # wrong corners?
                 if self.services[0] == "google":
                     # assume that if the service is not specified or its google, that the bounding
                     # box coordinates are provided in google's format
+                    self.bounds = BoundingBox()
                     self.bounds.set_bl_tr(Coordinate(coordinates[0], coordinates[
                                           1]), Coordinate(coordinates[2], coordinates[3]))
                 elif self.services[0] == "here":
                     # otherwise, if the service is specified as here, assume the bounding box
                     # coordinates are provided in here's format
+                    self.bounds = BoundingBox()
                     self.bounds.set_tl_br(Coordinate(coordinates[0], coordinates[
                                           1]), Coordinate(coordinates[2], coordinates[3]))
                 else:
+                    # leave self.bounds = None
                     self.logger.warning(
                         "Error identifying format of bounding box coordinates \
                         from service: {}".format(self.services[0]))
             else:
+                # leave self.bounds = None
                 self.logger.warning("Error parsing bounding box coordinates")
         return True
 
 
 class GeoproxyResponse:
-    """Help package an API response
+    """Container for preparing an API response
 
-    Valid status messages:
-    "OK"
-    "ZERO_RESULTS"
-    "INVALID_REQUEST"
-    "UNKNOWN_ERROR"
+    When a request is received by the geoproxy service, it will attempt to parse the incoming
+    data, communicate with third party geocoding services and package the results (or errors) into
+    a response that is sent back to the requesting client. This data structure is a container for
+    that response message.
+
+    In the event that an error occurs in the geoproxy service, the fields populated within the
+    GeoproxyResponse will be: query, error, status
+
+    In the event that no error occurs in the geoproxy service, and results are provided, the fields
+    populated within the GeoproxyResponse will be: query, resolved_address, status, result
+
+    Enum values for GeoproxyResponse.status:
+    "OK" - Query was successful
+    "ZERO_RESULTS" - Query was successful, but no results were obtained from third party services
+    "INVALID_REQUEST" - Query was unsuccessful, there was an error in the HTTP request or parsing
+    "UNKNOWN_ERROR" - Query was unsuccessful, an error not due to the request has occured
+                      (eg, server not running)
+
+    If a valid result is returned, the structure of the result dict is:
+    dict(
+        source: Third party service that was used to complete the query
+        lat: Latitude of the geocoded result
+        lon: Longitude of the geocoded result
+    )
+
+    Attributes:
+        query (string): Original, unformatted query string from the request
+        resolved_address (string): Resolved address string, returned by 3rd party service
+        error (string): Error string if an error has occured during the request pipeline
+        status (string): Enum string representing several process states (see above)
+        result (dict): Geoproxy result struct (see above)
 
     """
 
@@ -141,15 +233,37 @@ class GeoproxyResponse:
         self.result = None
 
     def set_error(self, message, status_type):
+        """Sets the response members associated with an error response
+
+        Args:
+            message (string): Error string
+            status_type (string): One of GeoproxyResponse.status (above)
+
+        """
         self.error = message
         self.status = status_type
 
     def set_result(self, source, lat, lon, resolved_address):
+        """Sets the response members associated with a valid result response
+
+        Args:
+            source (string): Third party service that was used to complete the query
+            lat (float): Latitude of the geocoded result
+            lon (float): Longitude of the geocoded result
+            resolved_address (string): Full address string of the geocoded result
+
+        """
         self.resolved_address = resolved_address
         self.result = {'source': source, 'lat': lat, 'lon': lon}
         self.status = "OK"
 
     def to_json(self):
+        """Converts class members into a serialized JSON object, based on status
+
+        Returns:
+            json: JSON string rep of response
+
+        """
         d = dict()
         if self.error:
             d['error'] = self.error
