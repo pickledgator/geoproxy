@@ -37,7 +37,7 @@ Bazel can be used to run the provided unit tests
 bazel test geoproxy/...
 ```
 
-### Usage
+### Example Usage
 In one terminal, run the example server with virtualenv already activated (binds to localhost:8080)
 ```shell
 bazel-bin/examples/server
