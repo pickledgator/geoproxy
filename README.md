@@ -41,7 +41,7 @@ virtualenv -p python3 env
 source env/bin/activate
 ```
 
-Then, kick off bazel to pull down dependencies and setup the toolchains
+Then, kick off bazel to pull down dependencies and package the library.
 ```shell
 bazel build geoproxy/...
 ```
