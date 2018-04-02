@@ -13,7 +13,8 @@ class Geoproxy(tornado.web.Application):
     """Main tornado web application servicing request handlers
 
     Simple wrapper for tornado.web.Application, packages additional member items such as
-    a logger instance and a thread pool executor for coroutines.
+    a logger instance and a thread pool executor for coroutines. Establishes a HTTP request
+    handler for "/geocode" GET commands and sets up the handler class.
 
     Attributes:
         logger (logging.logger): Logging instance
