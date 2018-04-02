@@ -26,9 +26,9 @@ pip3 install virtualenv
 First start with system dependencies for the build system
 ```shell
 sudo apt-get update && apt-get install openjdk-8-jdk curl -y
-sudo echo "deb [arch=amd64] http://storage.googleapis.com/bazel-apt stable jdk1.8" | tee /etc/apt/sources.list.d/bazel.list
-curl https://bazel.build/bazel-release.pub.gpg | apt-key add -
-sudo apt-get update && apt-get install bazel python -y
+sudo echo "deb [arch=amd64] http://storage.googleapis.com/bazel-apt stable jdk1.8" | sudo tee /etc/apt/sources.list.d/bazel.list
+curl https://bazel.build/bazel-release.pub.gpg | sudo apt-key add -
+sudo apt-get update && apt-get install bazel python python-pip3 -y
 pip3 install virtualenv
 ```
 

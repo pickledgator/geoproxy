@@ -77,7 +77,7 @@ class TestAPI(unittest.TestCase):
         self.assertTrue(out)
         self.assertEqual(req_parser.address, "Addr")
         self.assertEqual(req_parser.services, ["here", "google"])
-        self.assertEqual(req_parser.bounds.top_left.latitude, 1.0)
+        self.assertEqual(req_parser.bounds.top_left.latitude, 3.0)
 
     def test_bad_parse(self):
         invalid = {"service": ["google"], "bounds": ["1.0,2.0|3.0,4.0"]}
@@ -125,12 +125,12 @@ class TestAPI(unittest.TestCase):
         self.assertEqual(len(json.loads(gp.to_json()).keys()), 2)
         gp2 = GeoproxyResponse()
         gp2.set_result("google", 1.0, 2.0, "Addr string")
-        self.assertEqual(gp2.resolved_address, "Addr string")
+        self.assertEqual(gp2.result['resolved_address'], "Addr string")
         self.assertEqual(type(gp2.result), dict)
         self.assertEqual(gp2.result['source'], "google")
         self.assertEqual(gp2.status, "OK")
         self.assertIsNone(gp2.error)
-        self.assertEqual(len(json.loads(gp2.to_json()).keys()), 4)
+        self.assertEqual(len(json.loads(gp2.to_json()).keys()), 3)
         self.assertEqual(type(gp2.to_json()), str)
 
 

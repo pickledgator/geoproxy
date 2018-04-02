@@ -86,7 +86,7 @@ class TestHereServices(unittest.TestCase):
         bb.set_tl_br(coord1, coord2)
         hsh.build_query("two+words", bb)
         string = "https://geocoder.cit.api.here.com/6.2/geocode.json?app_id=appid" \
-            "&app_code=appcode&searchtext=two+words&bounds=0.0,0.0;1.0,1.0"
+            "&app_code=appcode&searchtext=two+words&bbox=0.0,0.0;1.0,1.0"
         self.assertEqual(hsh.query, string)
 
     def test_here_response_parser_valid(self):
