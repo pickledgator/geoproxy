@@ -99,7 +99,7 @@ class TestAPI(unittest.TestCase):
         out = req_parser.parse(mock_handler)
         self.assertTrue(out)
         # invalid primary service
-        self.assertTrue(all(elem in req_parser.services  for elem in ["google", "here"]))
+        self.assertTrue(all(elem in req_parser.services for elem in ["google", "here"]))
         self.assertEqual(response.query, "Addr")
 
     def test_bad_parse3(self):

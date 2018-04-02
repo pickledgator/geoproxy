@@ -14,18 +14,18 @@ class TestGeoproxy(AsyncHTTPTestCase):
 
     def test_no_address(self):
         response = self.fetch('/geocode')
-        response_json = json.loads(response.body)
+        response_json = json.loads(response.body.decode('utf-8'))
         self.assertEqual(response_json['status'], "INVALID_REQUEST")
 
     def test_invalid_google_key(self):
         response = self.fetch('/geocode?address=101+North+St&service=google')
-        response_json = json.loads(response.body)
+        response_json = json.loads(response.body.decode('utf-8'))
         print(response_json)
         self.assertEqual(response_json['status'], "UNKNOWN_ERROR")
 
     def test_invalid_here_key(self):
         response = self.fetch('/geocode?address=101+North+St&service=here')
-        response_json = json.loads(response.body)
+        response_json = json.loads(response.body.decode('utf-8'))
         print(response_json)
         self.assertEqual(response_json['status'], "UNKNOWN_ERROR")
 
