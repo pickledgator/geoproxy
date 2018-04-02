@@ -151,7 +151,7 @@ There are several known limitations in the implementation of the geoproxy servic
 * Limited robustness to non-latin characters
 * Limited exception handling
 * The result returned is the first item found (ie, first geocoder to return a list of results, where the first item in the list is chosen)
-* Not all third party geocoding service parameters are supported yet (only bounds)
+* Not all third party geocoding service parameters are supported yet (only bounds/bbox)
 
 # Testing
 Geoproxy has been tested on:
