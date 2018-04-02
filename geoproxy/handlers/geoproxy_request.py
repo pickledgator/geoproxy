@@ -101,6 +101,7 @@ class GeoproxyRequestHandler(tornado.web.RequestHandler):
                         # otherwise assume the parse was successful, and we extracted data
                         # package it into our response object to be sent out.
                         elif parse_success is not None:
+                            geo_proxy_response.error = None
                             geo_proxy_response.set_result(
                                 service, service_helper.parser.latitude,
                                 service_helper.parser.longitude,

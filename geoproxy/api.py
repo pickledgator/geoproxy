@@ -111,12 +111,8 @@ class GeoproxyRequestParser:
 
         If the bounds argument is provided, it attempts to parse the string using the class helper
         function. Upon successful bounds string parsing, the 2 extracted coordinates are then used
-        to create a bounding box object. Since each third party geocoding service uses a different
-        ordering to provide bounding box corners, it is assumed that whatever service is specified
-        in the request will match the appropriate corner ordering.
-        Eg:
-        request.service == "google"/None -> bounds: bottom left, top right
-        request.service == "here" -> bounds: top left, bottom right
+        to create a bounding box object. It is assumed that the geoproxy API expects the bounds to
+        be formatted as bottom_left.lat,bottom_left.lon|top_right.lat,top_right.lon.
 
         Args:
             request (tornado.web.RequestHandler): Object containing the request data
@@ -163,25 +159,10 @@ class GeoproxyRequestParser:
         if len(bounds) == 1:
             coordinates = self.parse_bounding_coordinates(bounds[0])
             if coordinates:
-                # TODO(pickledgator): Are the 3rd party geocoders robust to sending the
-                # wrong corners?
-                if self.services[0] == "google":
-                    # assume that if the service is not specified or its google, that the bounding
-                    # box coordinates are provided in google's format
+                    # assume that geoproxy API always provides bbox as bottom_left, top_right
                     self.bounds = BoundingBox()
                     self.bounds.set_bl_tr(Coordinate(coordinates[0], coordinates[
                                           1]), Coordinate(coordinates[2], coordinates[3]))
-                elif self.services[0] == "here":
-                    # otherwise, if the service is specified as here, assume the bounding box
-                    # coordinates are provided in here's format
-                    self.bounds = BoundingBox()
-                    self.bounds.set_tl_br(Coordinate(coordinates[0], coordinates[
-                                          1]), Coordinate(coordinates[2], coordinates[3]))
-                else:
-                    # leave self.bounds = None
-                    self.logger.warning(
-                        "Error identifying format of bounding box coordinates \
-                        from service: {}".format(self.services[0]))
             else:
                 # leave self.bounds = None
                 self.logger.warning("Error parsing bounding box coordinates")
@@ -214,11 +195,11 @@ class GeoproxyResponse:
         source: Third party service that was used to complete the query
         lat: Latitude of the geocoded result
         lon: Longitude of the geocoded result
+        resolved_address: Full address of the geocoded result
     )
 
     Attributes:
         query (string): Original, unformatted query string from the request
-        resolved_address (string): Resolved address string, returned by 3rd party service
         error (string): Error string if an error has occured during the request pipeline
         status (string): Enum string representing several process states (see above)
         result (dict): Geoproxy result struct (see above)
@@ -227,7 +208,6 @@ class GeoproxyResponse:
 
     def __init__(self):
         self.query = None
-        self.resolved_address = None
         self.error = None
         self.status = None
         self.result = None
@@ -250,11 +230,10 @@ class GeoproxyResponse:
             source (string): Third party service that was used to complete the query
             lat (float): Latitude of the geocoded result
             lon (float): Longitude of the geocoded result
-            resolved_address (string): Full address string of the geocoded result
 
         """
-        self.resolved_address = resolved_address
-        self.result = {'source': source, 'lat': lat, 'lon': lon}
+        self.result = {'source': source, 'lat': lat, 'lon': lon,
+                       'resolved_address': resolved_address}
         self.status = "OK"
 
     def to_json(self):
@@ -270,7 +249,6 @@ class GeoproxyResponse:
             d['status'] = self.status
         else:
             d['query'] = self.query
-            d['resolved_address'] = self.resolved_address
             d['status'] = self.status
             d['result'] = self.result
 

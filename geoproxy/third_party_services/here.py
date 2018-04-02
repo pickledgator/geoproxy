@@ -42,10 +42,10 @@ class HereServiceHelper(ThirdPartyServiceHelper):
                                                 address)
         if bounds:
             # northwest, southeast
-            self.query += "&bounds={},{};{},{}".format(bounds.top_left.latitude,
-                                                       bounds.top_left.longitude,
-                                                       bounds.bottom_right.latitude,
-                                                       bounds.bottom_right.longitude)
+            self.query += "&bbox={},{};{},{}".format(bounds.top_left.latitude,
+                                                     bounds.top_left.longitude,
+                                                     bounds.bottom_right.latitude,
+                                                     bounds.bottom_right.longitude)
 
 
 class HereServiceResponseParser(ThirdPartyServiceResponseParser):
